@@ -174,7 +174,7 @@ Certifique-se de ter HTTPS configurado (Let's Encrypt, Cloudflare, etc.)
 
 1. **Clone o repositório**
 ```bash
-git clone https://github.com/seu-usuario/smart-donation.git
+git clone https://github.com/Rafael-Russo/smart-donation.git
 cd smart-donation
 ```
 
