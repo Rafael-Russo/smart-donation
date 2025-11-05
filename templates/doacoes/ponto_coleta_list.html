@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Pontos de Coleta - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><i class="bi bi-geo-alt-fill"></i> Pontos de Coleta</h1>
+            <p class="lead">Encontre pontos de coleta próximos a você e veja os itens disponíveis</p>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="col-md-4 text-end">
+            <a href="{% url 'ponto_coleta_criar' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Criar Ponto de Coleta
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Cidade</label>
+                    <input type="text" name="cidade" class="form-control" value="{{ request.GET.cidade }}" placeholder="Ex: São Paulo">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="SP" {% if request.GET.estado == 'SP' %}selected{% endif %}>São Paulo</option>
+                        <option value="RJ" {% if request.GET.estado == 'RJ' %}selected{% endif %}>Rio de Janeiro</option>
+                        <option value="MG" {% if request.GET.estado == 'MG' %}selected{% endif %}>Minas Gerais</option>
+                        <option value="BA" {% if request.GET.estado == 'BA' %}selected{% endif %}>Bahia</option>
+                        <option value="PR" {% if request.GET.estado == 'PR' %}selected{% endif %}>Paraná</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="ativo" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="true" {% if request.GET.ativo == 'true' %}selected{% endif %}>Ativos</option>
+                        <option value="false" {% if request.GET.ativo == 'false' %}selected{% endif %}>Inativos</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Pontos -->
+    {% if pontos_coleta %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for ponto in pontos_coleta %}
+            <div class="col">
+                <div class="card h-100 {% if not ponto.ativo %}opacity-75{% endif %}">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-geo-alt-fill text-primary"></i> {{ ponto.nome }}
+                            {% if not ponto.ativo %}
+                                <span class="badge bg-secondary">Inativo</span>
+                            {% endif %}
+                        </h5>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="bi bi-person"></i> {{ ponto.responsavel.username }}
+                            </small>
+                        </p>
+                        <p class="card-text">{{ ponto.descricao|truncatewords:20 }}</p>
+                        
+                        <hr>
+                        
+                        <p class="mb-2">
+                            <i class="bi bi-pin-map"></i> 
+                            {{ ponto.cidade }} - {{ ponto.estado }}
+                        </p>
+                        
+                        {% if ponto.horario_funcionamento %}
+                        <p class="mb-2">
+                            <i class="bi bi-clock"></i> 
+                            {{ ponto.horario_funcionamento }}
+                        </p>
+                        {% endif %}
+                        
+                        {% if ponto.telefone %}
+                        <p class="mb-2">
+                            <i class="bi bi-telephone"></i> 
+                            {{ ponto.telefone }}
+                        </p>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted">
+                                <i class="bi bi-box"></i> {{ ponto.itemestoque_set.count }} itens
+                            </small>
+                            <a href="{% url 'ponto_coleta_detail' ponto.id %}" class="btn btn-sm btn-primary">
+                                Ver Detalhes <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle"></i>
+            {% if request.GET.cidade or request.GET.estado or request.GET.ativo %}
+                Nenhum ponto de coleta encontrado com os filtros aplicados.
+            {% else %}
+                Ainda não há pontos de coleta cadastrados. 
+                {% if user.is_authenticated %}
+                    <a href="{% url 'ponto_coleta_criar' %}">Seja o primeiro a criar um!</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Faça login</a> para criar o primeiro ponto de coleta!
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

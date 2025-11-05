@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ ponto.nome }} - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Cabeçalho do Ponto -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>
+                <i class="bi bi-geo-alt-fill text-primary"></i> {{ ponto.nome }}
+                {% if not ponto.ativo %}
+                    <span class="badge bg-secondary">Inativo</span>
+                {% endif %}
+            </h1>
+            <p class="lead">{{ ponto.descricao }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if user == ponto.responsavel %}
+                <a href="{% url 'ponto_coleta_editar' ponto.id %}" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <a href="{% url 'item_estoque_criar' ponto.id %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Adicionar Item
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informações do Ponto -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Informações</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Responsável:</strong><br>
+                        <i class="bi bi-person"></i> {{ ponto.responsavel.username }}
+                    </p>
+                    
+                    <hr>
+                    
+                    <p><strong>Endereço:</strong><br>
+                        <i class="bi bi-geo-alt"></i> {{ ponto.endereco_completo }}
+                    </p>
+                    
+                    {% if ponto.horario_funcionamento %}
+                    <hr>
+                    <p><strong>Horário:</strong><br>
+                        <i class="bi bi-clock"></i> {{ ponto.horario_funcionamento }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if ponto.telefone %}
+                    <hr>
+                    <p><strong>Telefone:</strong><br>
+                        <i class="bi bi-telephone"></i> {{ ponto.telefone }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if ponto.email %}
+                    <hr>
+                    <p><strong>E-mail:</strong><br>
+                        <i class="bi bi-envelope"></i> {{ ponto.email }}
+                    </p>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <p><strong>Cadastrado em:</strong><br>
+                        <small class="text-muted">{{ ponto.data_criacao|date:"d/m/Y H:i" }}</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Itens do Estoque -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-box-seam"></i> Itens Disponíveis ({{ itens.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if itens %}
+                        <div class="row row-cols-1 row-cols-md-2 g-3">
+                            {% for item in itens %}
+                            <div class="col">
+                                <div class="card h-100 {% if item.status != 'disponivel' %}opacity-50{% endif %}">
+                                    {% if item.foto %}
+                                    <img src="{{ item.foto.url }}" class="card-img-top" alt="{{ item.titulo }}">
+                                    {% else %}
+                                    <div class="card-img-placeholder">
+                                        <i class="bi bi-image text-white" style="font-size: 3rem;"></i>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if item.urgencia == 'alta' %}
+                                        <span class="badge bg-danger urgencia-badge">Urgente</span>
+                                    {% endif %}
+                                    
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ item.titulo }}</h6>
+                                        <p class="card-text">
+                                            <small>{{ item.descricao|truncatewords:15 }}</small>
+                                        </p>
+                                        
+                                        <div class="mb-2">
+                                            <span class="badge bg-secondary">{{ item.categoria.nome }}</span>
+                                            <span class="badge bg-info">{{ item.get_status_display }}</span>
+                                        </div>
+                                        
+                                        <p class="mb-2">
+                                            <strong>Disponível:</strong> {{ item.quantidade_disponivel }} de {{ item.quantidade }}
+                                        </p>
+                                        
+                                        {% if item.status == 'disponivel' and user.is_authenticated and user != ponto.responsavel %}
+                                        <a href="{% url 'solicitacao_criar' item.id %}" class="btn btn-sm btn-primary w-100">
+                                            <i class="bi bi-hand-index"></i> Solicitar
+                                        </a>
+                                        {% elif user == ponto.responsavel %}
+                                        <a href="{% url 'item_estoque_editar' item.id %}" class="btn btn-sm btn-warning w-100">
+                                            <i class="bi bi-pencil"></i> Editar
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-inbox"></i> Ainda não há itens cadastrados neste ponto de coleta.
+                            {% if user == ponto.responsavel %}
+                                <br><a href="{% url 'item_estoque_criar' ponto.id %}" class="btn btn-primary mt-2">
+                                    <i class="bi bi-plus-circle"></i> Adicionar Primeiro Item
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

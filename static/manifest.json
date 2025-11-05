@@ -1,0 +1,128 @@
+{
+  "name": "Smart Donation - Doação Inteligente",
+  "short_name": "Smart Donation",
+  "description": "Sistema inteligente de doações conectando quem quer ajudar com quem precisa através de pontos de coleta",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2E7D32",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/static/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/screenshots/home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Tela inicial do Smart Donation"
+    },
+    {
+      "src": "/static/screenshots/pontos.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Lista de pontos de coleta"
+    }
+  ],
+  "categories": ["social", "lifestyle", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Pontos de Coleta",
+      "short_name": "Pontos",
+      "description": "Ver pontos de coleta disponíveis",
+      "url": "/pontos-coleta/",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-pontos.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Comunidade",
+      "short_name": "Comunidade",
+      "description": "Acessar comunidade de doadores",
+      "url": "/comunidade/",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-comunidade.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Minhas Solicitações",
+      "short_name": "Solicitações",
+      "description": "Ver minhas solicitações de doação",
+      "url": "/minhas-solicitacoes/",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-solicitacoes.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/compartilhar/",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "related_applications": [],
+  "prefer_related_applications": false
+}

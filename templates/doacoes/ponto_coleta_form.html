@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Criar{% endif %} Ponto de Coleta - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        {% if form.instance.pk %}
+                            Editar Ponto de Coleta
+                        {% else %}
+                            Criar Novo Ponto de Coleta
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Preencha as informações do seu ponto de coleta. Essas informações ajudarão 
+                        pessoas que precisam a encontrar e acessar o local.
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <h5 class="mt-4 mb-3"><i class="bi bi-card-text"></i> Informações Básicas</h5>
+                        {{ form.nome|as_crispy_field }}
+                        {{ form.descricao|as_crispy_field }}
+                        
+                        <h5 class="mt-4 mb-3"><i class="bi bi-geo"></i> Localização</h5>
+                        <div class="row">
+                            <div class="col-md-8">
+                                {{ form.endereco|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.numero|as_crispy_field }}
+                            </div>
+                        </div>
+                        {{ form.complemento|as_crispy_field }}
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.bairro|as_crispy_field }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.cidade|as_crispy_field }}
+                            </div>
+                            <div class="col-md-2">
+                                {{ form.estado|as_crispy_field }}
+                            </div>
+                        </div>
+                        {{ form.cep|as_crispy_field }}
+                        
+                        <h5 class="mt-4 mb-3"><i class="bi bi-telephone"></i> Contato</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.telefone|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.email|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mt-4 mb-3"><i class="bi bi-clock"></i> Funcionamento</h5>
+                        {{ form.horario_funcionamento|as_crispy_field }}
+                        
+                        <div class="form-check mt-3 mb-4">
+                            {{ form.ativo }}
+                            <label class="form-check-label" for="{{ form.ativo.id_for_label }}">
+                                Ponto de coleta ativo (disponível para receber solicitações)
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i>
+                                {% if form.instance.pk %}Salvar Alterações{% else %}Criar Ponto de Coleta{% endif %}
+                            </button>
+                            <a href="{% if form.instance.pk %}{% url 'ponto_coleta_detail' form.instance.pk %}{% else %}{% url 'ponto_coleta_list' %}{% endif %}" 
+                               class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if form.instance.pk %}
+            <div class="card mt-3 border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Zona de Perigo</h5>
+                </div>
+                <div class="card-body">
+                    <p>Ao excluir este ponto de coleta, todos os itens do estoque e solicitações relacionadas também serão removidos.</p>
+                    <form method="post" action="{% url 'ponto_coleta_excluir' form.instance.pk %}" 
+                          onsubmit="return confirm('Tem certeza que deseja excluir este ponto de coleta? Esta ação não pode ser desfeita.');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Excluir Ponto de Coleta
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

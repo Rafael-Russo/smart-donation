@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerenciar Solicitações - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1><i class="bi bi-clipboard-check"></i> Gerenciar Solicitações</h1>
+    {% if meu_ponto %}
+        <p class="lead">Solicitações recebidas no seu ponto: <strong>{{ meu_ponto.nome }}</strong></p>
+    {% else %}
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            Você ainda não possui um ponto de coleta. 
+            <a href="{% url 'ponto_coleta_criar' %}" class="alert-link">Crie um agora</a>.
+        </div>
+    {% endif %}
+
+    {% if meu_ponto %}
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-warning text-white">
+                <div class="card-body">
+                    <h2>{{ pendentes }}</h2>
+                    <p class="mb-0">Pendentes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <h2>{{ aprovadas }}</h2>
+                    <p class="mb-0">Aprovadas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-primary text-white">
+                <div class="card-body">
+                    <h2>{{ concluidas }}</h2>
+                    <p class="mb-0">Concluídas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-danger text-white">
+                <div class="card-body">
+                    <h2>{{ recusadas }}</h2>
+                    <p class="mb-0">Recusadas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="pendente" {% if request.GET.status == 'pendente' %}selected{% endif %}>Pendente</option>
+                        <option value="aprovada" {% if request.GET.status == 'aprovada' %}selected{% endif %}>Aprovada</option>
+                        <option value="recusada" {% if request.GET.status == 'recusada' %}selected{% endif %}>Recusada</option>
+                        <option value="concluida" {% if request.GET.status == 'concluida' %}selected{% endif %}>Concluída</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tipo</label>
+                    <select name="tipo" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="retirada" {% if request.GET.tipo == 'retirada' %}selected{% endif %}>Retirada</option>
+                        <option value="entrega" {% if request.GET.tipo == 'entrega' %}selected{% endif %}>Entrega</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Solicitações -->
+    {% if solicitacoes %}
+        <div class="row g-4">
+            {% for solicitacao in solicitacoes %}
+            <div class="col-md-12">
+                <div class="card {% if solicitacao.status == 'pendente' %}border-warning{% endif %}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5 class="card-title">
+                                    <i class="bi bi-box-seam"></i> {{ solicitacao.item.titulo }}
+                                </h5>
+                                <p class="mb-2">
+                                    <strong>Solicitante:</strong> {{ solicitacao.solicitante.username }}<br>
+                                    <strong>Quantidade:</strong> {{ solicitacao.quantidade_solicitada }}<br>
+                                    <strong>Tipo:</strong> 
+                                    {% if solicitacao.tipo == 'retirada' %}
+                                        <i class="bi bi-person-walking"></i> Retirada no local
+                                    {% else %}
+                                        <i class="bi bi-truck"></i> Entrega em: {{ solicitacao.endereco_entrega }}, {{ solicitacao.cidade_entrega }}/{{ solicitacao.estado_entrega }}
+                                    {% endif %}
+                                </p>
+                                
+                                {% if solicitacao.observacao_solicitante %}
+                                <div class="alert alert-light mb-2">
+                                    <strong>Observação do solicitante:</strong><br>
+                                    {{ solicitacao.observacao_solicitante }}
+                                </div>
+                                {% endif %}
+                                
+                                {% if solicitacao.observacao_responsavel %}
+                                <p class="mb-2">
+                                    <strong>Sua resposta:</strong> {{ solicitacao.observacao_responsavel }}
+                                </p>
+                                {% endif %}
+                                
+                                <p class="mb-0">
+                                    <small class="text-muted">
+                                        Solicitado em: {{ solicitacao.data_solicitacao|date:"d/m/Y H:i" }}
+                                        {% if solicitacao.data_resposta %}
+                                            | Respondido em: {{ solicitacao.data_resposta|date:"d/m/Y H:i" }}
+                                        {% endif %}
+                                    </small>
+                                </p>
+                            </div>
+                            
+                            <div class="col-md-4 text-end">
+                                <span class="badge bg-{% if solicitacao.status == 'pendente' %}warning{% elif solicitacao.status == 'aprovada' %}success{% elif solicitacao.status == 'recusada' %}danger{% elif solicitacao.status == 'concluida' %}primary{% else %}secondary{% endif %} mb-3">
+                                    {{ solicitacao.get_status_display }}
+                                </span>
+                                
+                                {% if solicitacao.status == 'pendente' %}
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#aprovarModal{{ solicitacao.id }}">
+                                        <i class="bi bi-check-circle"></i> Aprovar
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#recusarModal{{ solicitacao.id }}">
+                                        <i class="bi bi-x-circle"></i> Recusar
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modais fora do card para evitar conflito com hover -->
+            {% if solicitacao.status == 'pendente' %}
+            <!-- Modal Aprovar -->
+            <div class="modal fade" id="aprovarModal{{ solicitacao.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title">Aprovar Solicitação</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="post" action="{% url 'solicitacao_aprovar' solicitacao.id %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <p>Você está aprovando a solicitação de <strong>{{ solicitacao.solicitante.username }}</strong> para o item <strong>{{ solicitacao.item.titulo }}</strong>.</p>
+                                <div class="mb-3">
+                                    <label for="observacao{{ solicitacao.id }}" class="form-label">Observação (opcional)</label>
+                                    <textarea class="form-control" id="observacao{{ solicitacao.id }}" name="observacao" rows="3" placeholder="Ex: O item estará disponível para retirada a partir das 14h"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-success">Confirmar Aprovação</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Recusar -->
+            <div class="modal fade" id="recusarModal{{ solicitacao.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title">Recusar Solicitação</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="post" action="{% url 'solicitacao_recusar' solicitacao.id %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <p>Você está recusando a solicitação de <strong>{{ solicitacao.solicitante.username }}</strong>.</p>
+                                <div class="mb-3">
+                                    <label for="motivo{{ solicitacao.id }}" class="form-label">Motivo da recusa (opcional, mas recomendado)</label>
+                                    <textarea class="form-control" id="motivo{{ solicitacao.id }}" name="observacao" rows="3" placeholder="Ex: Item já foi reservado para outra pessoa"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-danger">Confirmar Recusa</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="bi bi-inbox"></i>
+            {% if request.GET.status or request.GET.tipo %}
+                Nenhuma solicitação encontrada com os filtros aplicados.
+            {% else %}
+                Ainda não há solicitações para os itens do seu ponto de coleta.
+            {% endif %}
+        </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

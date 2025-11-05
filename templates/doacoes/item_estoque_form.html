@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Item ao Estoque - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-box-seam"></i>
+                        {% if form.instance.pk %}
+                            Editar Item do Estoque
+                        {% else %}
+                            Adicionar Item ao Estoque
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if ponto_coleta %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        Você está adicionando um item ao ponto: <strong>{{ ponto_coleta.nome }}</strong>
+                    </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <h5 class="mt-3 mb-3"><i class="bi bi-card-text"></i> Informações do Item</h5>
+                        {{ form.titulo|as_crispy_field }}
+                        {{ form.descricao|as_crispy_field }}
+                        {{ form.categoria|as_crispy_field }}
+                        
+                        <h5 class="mt-4 mb-3"><i class="bi bi-box"></i> Quantidade e Status</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.quantidade|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.status|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.urgencia|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.condicao|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mt-4 mb-3"><i class="bi bi-image"></i> Foto do Item</h5>
+                        {{ form.foto|as_crispy_field }}
+                        {% if form.instance.foto %}
+                        <div class="mb-3">
+                            <img src="{{ form.instance.foto.url }}" class="img-thumbnail" style="max-width: 300px;" alt="Foto atual">
+                            <p class="text-muted mt-2">Foto atual. Envie uma nova imagem para substituí-la.</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i>
+                                {% if form.instance.pk %}Salvar Alterações{% else %}Adicionar ao Estoque{% endif %}
+                            </button>
+                            <a href="{% if form.instance.pk %}{% url 'meu_estoque' %}{% elif ponto_coleta %}{% url 'ponto_coleta_detail' ponto_coleta.id %}{% else %}{% url 'meu_estoque' %}{% endif %}" 
+                               class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if form.instance.pk %}
+            <div class="card mt-3 border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Excluir Item</h5>
+                </div>
+                <div class="card-body">
+                    <p>Ao excluir este item, todas as solicitações pendentes relacionadas também serão canceladas.</p>
+                    <form method="post" action="{% url 'item_estoque_excluir' form.instance.pk %}" 
+                          onsubmit="return confirm('Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Excluir Item
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

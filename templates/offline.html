@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Você está offline - Smart Donation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .offline-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .offline-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #FFA726 0%, #FF9800 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .offline-icon svg {
+            width: 60px;
+            height: 60px;
+            fill: white;
+        }
+
+        h1 {
+            color: #2E7D32;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #FFF3E0;
+            border-radius: 10px;
+            font-weight: 500;
+            color: #E65100;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: #FF9800;
+            border-radius: 50%;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        button, a {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(46, 125, 50, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .tips {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            text-align: left;
+        }
+
+        .tips h3 {
+            color: #2E7D32;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .tips ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tips li {
+            padding: 10px 0;
+            color: #666;
+            font-size: 14px;
+            display: flex;
+            align-items: start;
+            gap: 10px;
+        }
+
+        .tips li::before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        @media (max-width: 480px) {
+            .offline-container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .offline-icon {
+                width: 100px;
+                height: 100px;
+            }
+
+            .offline-icon svg {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M23.64 7c-.45-.34-4.93-4-11.64-4C5.28 3 .81 6.66.36 7L12 21.5 23.64 7zM3.53 10.95l8.47 11.83 8.47-11.83c-4.29-2.89-6.41-3.74-8.47-3.74-2.06 0-4.18.85-8.47 3.74z"/>
+                <path d="M12 13L1 7l1.41-1.41L12 11.67l9.59-6.08L23 7z"/>
+            </svg>
+        </div>
+
+        <h1>Você está offline</h1>
+        
+        <p>Parece que você perdeu sua conexão com a internet. Verifique sua conexão e tente novamente.</p>
+
+        <div class="status">
+            <div class="status-dot"></div>
+            <span>Sem conexão</span>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-primary" onclick="window.location.reload()">
+                Tentar Novamente
+            </button>
+            <a href="/" class="btn-secondary">
+                Voltar para Início
+            </a>
+        </div>
+
+        <div class="tips">
+            <h3>💡 Dicas enquanto está offline</h3>
+            <ul>
+                <li>Verifique se o Wi-Fi ou dados móveis estão ativados</li>
+                <li>Tente se reconectar à sua rede</li>
+                <li>Algumas páginas visitadas recentemente podem estar disponíveis offline</li>
+                <li>Quando reconectar, suas ações pendentes serão sincronizadas</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Detecta quando volta a ficar online
+        window.addEventListener('online', function() {
+            // Mostra mensagem de sucesso
+            const status = document.querySelector('.status');
+            status.innerHTML = '<div class="status-dot" style="background: #4CAF50; animation: none;"></div><span style="color: #2E7D32;">Conectado! Recarregando...</span>';
+            status.style.background = '#E8F5E9';
+            
+            // Aguarda 1 segundo e recarrega
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+
+        // Tenta reconectar periodicamente
+        let retryCount = 0;
+        const maxRetries = 5;
+        
+        function checkConnection() {
+            if (retryCount < maxRetries) {
+                fetch('/', { method: 'HEAD', cache: 'no-cache' })
+                    .then(() => {
+                        // Se conseguir fazer fetch, está online
+                        window.location.reload();
+                    })
+                    .catch(() => {
+                        // Ainda offline, tenta novamente
+                        retryCount++;
+                        setTimeout(checkConnection, 5000);
+                    });
+            }
+        }
+
+        // Inicia verificação após 3 segundos
+        setTimeout(checkConnection, 3000);
+    </script>
+</body>
+</html>

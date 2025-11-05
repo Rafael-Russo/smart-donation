@@ -9,16 +9,17 @@
         <div class="row align-items-center">
             <div class="col-lg-8">
                 <h1 class="display-4 fw-bold">Doe com Inteligência, Ajude com o Coração</h1>
-                <p class="lead">Conecte-se com pessoas que precisam de ajuda e faça a diferença na sua comunidade.</p>
+                <p class="lead">Encontre pontos de coleta próximos a você. Doe itens que você não usa mais ou solicite o que você precisa.</p>
                 <div class="mt-4">
                     {% if not user.is_authenticated %}
                         <a href="{% url 'registro' %}" class="btn btn-primary btn-lg me-2">Começar Agora</a>
+                        <a href="{% url 'ponto_coleta_list' %}" class="btn btn-outline-primary btn-lg">Ver Pontos de Coleta</a>
                     {% else %}
-                        <a href="{% url 'doacao_criar' %}" class="btn btn-primary btn-lg me-2">
-                            <i class="bi bi-plus-circle"></i> Fazer uma Doação
+                        <a href="{% url 'ponto_coleta_criar' %}" class="btn btn-primary btn-lg me-2">
+                            <i class="bi bi-geo-alt"></i> Criar Ponto de Coleta
                         </a>
+                        <a href="{% url 'ponto_coleta_list' %}" class="btn btn-outline-primary btn-lg">Buscar Itens</a>
                     {% endif %}
-                    <a href="{% url 'buscar' %}" class="btn btn-outline-primary btn-lg">Buscar Doações</a>
                 </div>
             </div>
             <div class="col-lg-4 text-center">
@@ -28,84 +29,65 @@
     </div>
 </section>
 
-<!-- Filtros -->
-<section class="py-4 border-bottom">
+<!-- Estatísticas -->
+<section class="py-4 bg-primary text-white">
     <div class="container">
-        <form method="get" class="row g-3">
-            <div class="col-md-4">
-                <select name="categoria" class="form-select">
-                    <option value="">Todas as Categorias</option>
-                    {% for categoria in categorias %}
-                        <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
-                    {% endfor %}
-                </select>
+        <div class="row text-center">
+            <div class="col-md-3">
+                <h2 class="display-5">{{ total_pontos }}</h2>
+                <p>Pontos de Coleta</p>
             </div>
             <div class="col-md-3">
-                <input type="text" name="cidade" class="form-control" placeholder="Cidade">
+                <h2 class="display-5">{{ total_itens }}</h2>
+                <p>Itens Disponíveis</p>
             </div>
             <div class="col-md-3">
-                <select name="urgencia" class="form-select">
-                    <option value="">Todas Urgências</option>
-                    <option value="baixa">Baixa</option>
-                    <option value="media">Média</option>
-                    <option value="alta">Alta</option>
-                    <option value="urgente">Urgente</option>
-                </select>
+                <h2 class="display-5">{{ total_solicitacoes }}</h2>
+                <p>Solicitações Realizadas</p>
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search"></i> Filtrar
-                </button>
+            <div class="col-md-3">
+                <h2 class="display-5">{{ total_usuarios }}</h2>
+                <p>Pessoas Ajudando</p>
             </div>
-        </form>
+        </div>
     </div>
 </section>
 
-<!-- Doações Disponíveis -->
+<!-- Pontos de Coleta em Destaque -->
 <section class="py-5">
     <div class="container">
-        <h2 class="mb-4">Doações Disponíveis</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Pontos de Coleta Próximos</h2>
+            <a href="{% url 'ponto_coleta_list' %}" class="btn btn-outline-primary">Ver Todos</a>
+        </div>
         
-        {% if doacoes %}
+        {% if pontos_coleta %}
             <div class="row g-4">
-                {% for doacao in doacoes %}
+                {% for ponto in pontos_coleta %}
                     <div class="col-md-6 col-lg-4">
-                        <div class="card">
-                            {% if doacao.urgencia == 'urgente' or doacao.urgencia == 'alta' %}
-                                <span class="badge bg-danger urgencia-badge">
-                                    {% if doacao.urgencia == 'urgente' %}
-                                        <i class="bi bi-exclamation-triangle-fill"></i> URGENTE
-                                    {% else %}
-                                        Alta Prioridade
-                                    {% endif %}
-                                </span>
-                            {% endif %}
-                            
-                            {% if doacao.foto %}
-                                <img src="{{ doacao.foto.url }}" class="card-img-top" alt="{{ doacao.titulo }}">
-                            {% else %}
-                                <div class="card-img-placeholder text-white">
-                                    <i class="bi bi-image" style="font-size: 48px;"></i>
-                                </div>
-                            {% endif %}
-                            
+                        <div class="card h-100">
                             <div class="card-body">
-                                <h5 class="card-title">{{ doacao.titulo }}</h5>
-                                <p class="text-muted small mb-2">
-                                    <i class="bi bi-tag"></i> {{ doacao.categoria.nome|default:"Sem categoria" }}
+                                <h5 class="card-title">
+                                    <i class="bi bi-geo-alt-fill text-primary"></i> {{ ponto.nome }}
+                                </h5>
+                                <p class="card-text">{{ ponto.descricao|truncatewords:20 }}</p>
+                                
+                                <hr>
+                                
+                                <p class="mb-2">
+                                    <i class="bi bi-pin-map"></i> {{ ponto.cidade }} - {{ ponto.estado }}
                                 </p>
-                                <p class="card-text mb-3">{{ doacao.descricao|truncatewords:15 }}</p>
-                                <div class="mt-auto">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <small class="text-muted">
-                                            <i class="bi bi-geo-alt"></i> {{ doacao.cidade }}, {{ doacao.estado }}
-                                        </small>
-                                        <small class="text-muted">
-                                            <i class="bi bi-eye"></i> {{ doacao.visualizacoes }}
-                                        </small>
-                                    </div>
-                                    <a href="{% url 'doacao_detalhe' doacao.pk %}" class="btn btn-primary w-100">
-                                        Ver Detalhes
+                                
+                                <p class="mb-2">
+                                    <i class="bi bi-person"></i> {{ ponto.responsavel.username }}
+                                </p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <small class="text-muted">
+                                        <i class="bi bi-box"></i> {{ ponto.itemestoque_set.count }} itens
+                                    </small>
+                                    <a href="{% url 'ponto_coleta_detail' ponto.id %}" class="btn btn-sm btn-primary">
+                                        Ver Detalhes <i class="bi bi-arrow-right"></i>
                                     </a>
                                 </div>
                             </div>
@@ -114,41 +96,120 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle"></i> Nenhuma doação disponível no momento. 
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle"></i> Ainda não há pontos de coleta cadastrados. 
                 {% if user.is_authenticated %}
-                    <a href="{% url 'doacao_criar' %}">Seja o primeiro a doar!</a>
+                    <a href="{% url 'ponto_coleta_criar' %}">Seja o primeiro a criar um!</a>
                 {% endif %}
             </div>
         {% endif %}
     </div>
 </section>
 
+<!-- Itens Urgentes -->
+{% if itens_urgentes %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="mb-4 text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Itens Urgentes</h2>
+        <div class="row g-4">
+            {% for item in itens_urgentes %}
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        {% if item.foto %}
+                        <img src="{{ item.foto.url }}" class="card-img-top" alt="{{ item.titulo }}">
+                        {% else %}
+                        <div class="card-img-placeholder">
+                            <i class="bi bi-image text-white" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <span class="badge bg-danger urgencia-badge">Urgente</span>
+                        
+                        <div class="card-body">
+                            <h6 class="card-title">{{ item.titulo }}</h6>
+                            <p class="card-text">
+                                <small>{{ item.ponto_coleta.nome }}</small>
+                            </p>
+                            <a href="{% url 'ponto_coleta_detail' item.ponto_coleta.id %}" class="btn btn-sm btn-danger w-100">
+                                Ver Item
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Publicações Recentes da Comunidade -->
+{% if posts_recentes %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-chat-dots"></i> Comunidade</h2>
+            <a href="{% url 'comunidade' %}" class="btn btn-outline-primary">Ver Todas</a>
+        </div>
+        
+        <div class="row g-4">
+            {% for post in posts_recentes %}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            {% if post.fixado %}
+                                <i class="bi bi-pin-angle-fill text-primary"></i>
+                            {% endif %}
+                            <a href="{% url 'post_detail' post.id %}" class="text-decoration-none">{{ post.titulo }}</a>
+                        </h5>
+                        <p class="card-text">{{ post.conteudo|truncatewords:20 }}</p>
+                        <p class="mb-0">
+                            <small class="text-muted">
+                                <i class="bi bi-person"></i> {{ post.autor.username }}
+                                | <i class="bi bi-chat"></i> {{ post.total_comentarios }} comentários
+                            </small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <!-- Como Funciona -->
 <section class="bg-light py-5">
     <div class="container">
         <h2 class="text-center mb-5">Como Funciona</h2>
         <div class="row text-center">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="mb-3">
                     <i class="bi bi-person-plus-fill text-primary" style="font-size: 48px;"></i>
                 </div>
                 <h4>1. Cadastre-se</h4>
-                <p>Crie sua conta gratuitamente e configure seu perfil</p>
+                <p>Crie sua conta gratuitamente</p>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="mb-3">
-                    <i class="bi bi-box-seam text-primary" style="font-size: 48px;"></i>
+                    <i class="bi bi-geo-alt-fill text-success" style="font-size: 48px;"></i>
                 </div>
-                <h4>2. Doe ou Receba</h4>
-                <p>Cadastre itens para doar ou busque o que você precisa</p>
+                <h4>2. Crie um Ponto</h4>
+                <p>Cadastre um ponto de coleta</p>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="mb-3">
-                    <i class="bi bi-chat-dots text-primary" style="font-size: 48px;"></i>
+                    <i class="bi bi-box-seam text-warning" style="font-size: 48px;"></i>
                 </div>
-                <h4>3. Conecte-se</h4>
-                <p>Entre em contato e combine a entrega</p>
+                <h4>3. Gerencie Estoque</h4>
+                <p>Adicione itens e aprove pedidos</p>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <i class="bi bi-heart-fill text-danger" style="font-size: 48px;"></i>
+                </div>
+                <h4>4. Ajude</h4>
+                <p>Conecte quem doa com quem precisa</p>
             </div>
         </div>
     </div>

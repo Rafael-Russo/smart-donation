@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Solicitar Item - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-hand-index"></i> Solicitar Item
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Informações do Item -->
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-box-seam"></i> {{ item.titulo }}</h5>
+                        <p class="mb-1"><strong>Ponto de Coleta:</strong> {{ item.ponto_coleta.nome }}</p>
+                        <p class="mb-1"><strong>Quantidade disponível:</strong> {{ item.quantidade_disponivel }}</p>
+                        <p class="mb-0"><strong>Categoria:</strong> {{ item.categoria.nome }}</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <h5 class="mt-4 mb-3"><i class="bi bi-box"></i> Quantidade e Tipo de Retirada</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form.quantidade_solicitada|as_crispy_field }}
+                                <small class="text-muted">Máximo: {{ item.quantidade_disponivel }}</small>
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.tipo|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div id="enderecoEntrega" style="display: none;">
+                            <h5 class="mt-4 mb-3"><i class="bi bi-truck"></i> Endereço para Entrega</h5>
+                            <div class="alert alert-warning">
+                                <i class="bi bi-info-circle"></i>
+                                A entrega está sujeita à disponibilidade e aprovação do responsável pelo ponto de coleta.
+                            </div>
+                            {{ form.endereco_entrega|as_crispy_field }}
+                            <div class="row">
+                                <div class="col-md-8">
+                                    {{ form.cidade_entrega|as_crispy_field }}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form.estado_entrega|as_crispy_field }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5 class="mt-4 mb-3"><i class="bi bi-chat-left-text"></i> Observações</h5>
+                        {{ form.observacao_solicitante|as_crispy_field }}
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Enviar Solicitação
+                            </button>
+                            <a href="{% url 'ponto_coleta_detail' item.ponto_coleta.id %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Informações sobre o processo -->
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Como funciona?</h5>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        <li>Você envia a solicitação para o responsável pelo ponto de coleta</li>
+                        <li>O responsável analisará sua solicitação e poderá aprová-la ou recusá-la</li>
+                        <li>Se aprovada, você receberá uma notificação e poderá retirar o item no local ou aguardar a entrega</li>
+                        <li>Após receber o item, marque a solicitação como concluída</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mostrar/ocultar campos de endereço de entrega
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoSelect = document.getElementById('id_tipo');
+        const enderecoDiv = document.getElementById('enderecoEntrega');
+        
+        function toggleEndereco() {
+            if (tipoSelect.value === 'entrega') {
+                enderecoDiv.style.display = 'block';
+            } else {
+                enderecoDiv.style.display = 'none';
+            }
+        }
+        
+        tipoSelect.addEventListener('change', toggleEndereco);
+        toggleEndereco(); // Executar ao carregar a página
+    });
+</script>
+{% endblock %}

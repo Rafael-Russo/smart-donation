@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Meu Estoque - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><i class="bi bi-box-seam"></i> Gerenciar Estoque</h1>
+            {% if meu_ponto %}
+                <p class="lead">Ponto de Coleta: <strong>{{ meu_ponto.nome }}</strong></p>
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Você ainda não possui um ponto de coleta. 
+                    <a href="{% url 'ponto_coleta_criar' %}" class="alert-link">Crie um agora</a> para começar a adicionar itens.
+                </div>
+            {% endif %}
+        </div>
+        {% if meu_ponto %}
+        <div class="col-md-4 text-end">
+            <a href="{% url 'item_estoque_criar' meu_ponto.id %}" class="btn btn-success btn-lg">
+                <i class="bi bi-plus-circle"></i> Adicionar Item
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if meu_ponto %}
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <h2>{{ total_itens }}</h2>
+                    <p class="mb-0">Total de Itens</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-primary text-white">
+                <div class="card-body">
+                    <h2>{{ itens_disponiveis }}</h2>
+                    <p class="mb-0">Disponíveis</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-warning text-white">
+                <div class="card-body">
+                    <h2>{{ itens_reservados }}</h2>
+                    <p class="mb-0">Reservados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-secondary text-white">
+                <div class="card-body">
+                    <h2>{{ itens_esgotados }}</h2>
+                    <p class="mb-0">Esgotados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" name="q" class="form-control" value="{{ request.GET.q }}" placeholder="Título ou descrição">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Categoria</label>
+                    <select name="categoria" class="form-select">
+                        <option value="">Todas</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if request.GET.categoria == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="disponivel" {% if request.GET.status == 'disponivel' %}selected{% endif %}>Disponível</option>
+                        <option value="reservado" {% if request.GET.status == 'reservado' %}selected{% endif %}>Reservado</option>
+                        <option value="esgotado" {% if request.GET.status == 'esgotado' %}selected{% endif %}>Esgotado</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Itens -->
+    {% if itens %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for item in itens %}
+            <div class="col">
+                <div class="card h-100">
+                    {% if item.foto %}
+                    <img src="{{ item.foto.url }}" class="card-img-top" alt="{{ item.titulo }}">
+                    {% else %}
+                    <div class="card-img-placeholder">
+                        <i class="bi bi-image text-white" style="font-size: 3rem;"></i>
+                    </div>
+                    {% endif %}
+                    
+                    {% if item.urgencia == 'alta' %}
+                        <span class="badge bg-danger urgencia-badge">Urgente</span>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.titulo }}</h5>
+                        <p class="card-text">{{ item.descricao|truncatewords:20 }}</p>
+                        
+                        <div class="mb-2">
+                            <span class="badge bg-secondary">{{ item.categoria.nome }}</span>
+                            <span class="badge bg-{% if item.status == 'disponivel' %}success{% elif item.status == 'reservado' %}warning{% else %}secondary{% endif %}">
+                                {{ item.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <p class="mb-2">
+                            <strong>Quantidade:</strong> {{ item.quantidade_disponivel }} de {{ item.quantidade }}
+                        </p>
+                        
+                        <p class="mb-2">
+                            <strong>Condição:</strong> {{ item.get_condicao_display }}
+                        </p>
+                        
+                        <p class="mb-2">
+                            <small class="text-muted">
+                                <i class="bi bi-eye"></i> {{ item.visualizacoes }} visualizações
+                            </small>
+                        </p>
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="{% url 'item_estoque_editar' item.id %}" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="bi bi-inbox"></i>
+            {% if request.GET.q or request.GET.categoria or request.GET.status %}
+                Nenhum item encontrado com os filtros aplicados.
+            {% else %}
+                Você ainda não tem itens no estoque. 
+                <a href="{% url 'item_estoque_criar' meu_ponto.id %}" class="alert-link">Adicione o primeiro item!</a>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
