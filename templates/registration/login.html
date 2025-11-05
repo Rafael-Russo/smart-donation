@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Entrar - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">
+                        <i class="bi bi-box-arrow-in-right"></i> Entrar
+                    </h2>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            Entrar
+                        </button>
+                    </form>
+                    
+                    <div class="text-center">
+                        <p class="mb-2">
+                            <a href="{% url 'password_reset' %}">Esqueceu sua senha?</a>
+                        </p>
+                        <p class="mb-0">
+                            Não tem uma conta? <a href="{% url 'registro' %}">Cadastre-se</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Meu Perfil - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% if perfil.foto %}
+                        <img src="{{ perfil.foto.url }}" class="rounded-circle mb-3" width="150" height="150" alt="{{ user.username }}">
+                    {% else %}
+                        <div class="bg-secondary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
+                            <i class="bi bi-person text-white" style="font-size: 64px;"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <h3>{{ user.username }}</h3>
+                    <p class="text-muted">{{ perfil.get_tipo_display }}</p>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-around">
+                        <div>
+                            <h4>{{ perfil.total_doacoes }}</h4>
+                            <small class="text-muted">Doações</small>
+                        </div>
+                        <div>
+                            <h4>{{ perfil.avaliacao_media|floatformat:1 }}</h4>
+                            <small class="text-muted">Avaliação</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5><i class="bi bi-info-circle"></i> Informações</h5>
+                    <p class="mb-2">
+                        <strong>Email:</strong><br>
+                        {{ user.email|default:"Não informado" }}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Telefone:</strong><br>
+                        {{ perfil.telefone|default:"Não informado" }}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Localização:</strong><br>
+                        {% if perfil.cidade and perfil.estado %}
+                            {{ perfil.cidade }}, {{ perfil.estado }}
+                        {% else %}
+                            Não informado
+                        {% endif %}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Membro desde:</strong><br>
+                        {{ perfil.data_cadastro|date:"d/m/Y" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="mb-4"><i class="bi bi-pencil"></i> Editar Perfil</h3>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Salvar Alterações
+                            </button>
+                            <a href="{% url 'home' %}" class="btn btn-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

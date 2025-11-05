@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ doacao.titulo }} - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Imagem -->
+            {% if doacao.foto %}
+                <img src="{{ doacao.foto.url }}" class="img-fluid rounded mb-4" alt="{{ doacao.titulo }}">
+            {% else %}
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded mb-4" style="height: 400px;">
+                    <i class="bi bi-image" style="font-size: 100px;"></i>
+                </div>
+            {% endif %}
+            
+            <!-- Informações -->
+            <h1 class="mb-3">{{ doacao.titulo }}</h1>
+            
+            <div class="d-flex gap-2 mb-3">
+                <span class="badge bg-primary">{{ doacao.categoria.nome|default:"Sem categoria" }}</span>
+                <span class="badge bg-secondary">{{ doacao.get_status_display }}</span>
+                {% if doacao.urgencia == 'urgente' %}
+                    <span class="badge bg-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i> URGENTE
+                    </span>
+                {% elif doacao.urgencia == 'alta' %}
+                    <span class="badge bg-warning text-dark">Alta Prioridade</span>
+                {% endif %}
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5>Descrição</h5>
+                    <p>{{ doacao.descricao }}</p>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Quantidade:</strong> {{ doacao.quantidade }}</p>
+                            <p><strong>Condição:</strong> {{ doacao.condicao }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Localização:</strong> {{ doacao.cidade }}, {{ doacao.estado }}</p>
+                            <p><strong>Visualizações:</strong> {{ doacao.visualizacoes }}</p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted small mb-0">
+                        <i class="bi bi-calendar"></i> Publicado em {{ doacao.data_criacao|date:"d/m/Y" }}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Ações -->
+            <div class="d-flex gap-2">
+                {% if user.is_authenticated %}
+                    {% if doacao.doador == user %}
+                        <a href="{% url 'doacao_editar' doacao.pk %}" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                    {% elif doacao.status == 'disponivel' %}
+                        <form method="post" action="{% url 'doacao_reservar' doacao.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-hand-thumbs-up"></i> Tenho Interesse
+                            </button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-success">
+                        <i class="bi bi-hand-thumbs-up"></i> Faça login para reservar
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Informações do Doador -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Sobre o Doador</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        {% if doacao.doador.perfil.foto %}
+                            <img src="{{ doacao.doador.perfil.foto.url }}" class="rounded-circle me-3" width="50" height="50" alt="{{ doacao.doador.username }}">
+                        {% else %}
+                            <div class="bg-secondary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-person text-white"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h6 class="mb-0">{{ doacao.doador.username }}</h6>
+                            <small class="text-muted">{{ doacao.doador.perfil.get_tipo_display }}</small>
+                        </div>
+                    </div>
+                    
+                    {% if doacao.doador.perfil %}
+                        <p class="mb-2">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            {{ doacao.doador.perfil.avaliacao_media|floatformat:1 }}
+                        </p>
+                        <p class="mb-2">
+                            <i class="bi bi-gift"></i>
+                            {{ doacao.doador.perfil.total_doacoes }} doações realizadas
+                        </p>
+                        {% if doacao.doador.perfil.telefone %}
+                            <p class="mb-0">
+                                <i class="bi bi-telephone"></i>
+                                {% if user.is_authenticated and doacao.receptor == user %}
+                                    {{ doacao.doador.perfil.telefone }}
+                                {% else %}
+                                    <small class="text-muted">Disponível após reserva</small>
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Localização -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-geo-alt"></i> Localização
+                    </h5>
+                    <p class="mb-1">{{ doacao.endereco_retirada }}</p>
+                    <p class="mb-0">{{ doacao.cidade }} - {{ doacao.estado }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

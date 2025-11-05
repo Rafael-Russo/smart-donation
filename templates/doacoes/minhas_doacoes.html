@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Minhas Doações - Doação Inteligente{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Minhas Doações</h1>
+    
+    <!-- Nav Tabs -->
+    <ul class="nav nav-tabs mb-4" id="doacoesTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="feitas-tab" data-bs-toggle="tab" data-bs-target="#feitas" type="button">
+                <i class="bi bi-box-seam"></i> Doações Feitas ({{ doacoes_feitas.count }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="recebidas-tab" data-bs-toggle="tab" data-bs-target="#recebidas" type="button">
+                <i class="bi bi-gift"></i> Doações Recebidas ({{ doacoes_recebidas.count }})
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="doacoesTabContent">
+        <!-- Doações Feitas -->
+        <div class="tab-pane fade show active" id="feitas" role="tabpanel">
+            {% if doacoes_feitas %}
+                <div class="row g-4">
+                    {% for doacao in doacoes_feitas %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card">
+                                {% if doacao.foto %}
+                                    <img src="{{ doacao.foto.url }}" class="card-img-top" alt="{{ doacao.titulo }}">
+                                {% else %}
+                                    <div class="card-img-placeholder text-white">
+                                        <i class="bi bi-image" style="font-size: 48px;"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ doacao.titulo }}</h5>
+                                    <span class="badge bg-{{ doacao.status|yesno:'success,warning,secondary' }} mb-2">
+                                        {{ doacao.get_status_display }}
+                                    </span>
+                                    <p class="card-text text-muted small mb-3">
+                                        {{ doacao.descricao|truncatewords:10 }}
+                                    </p>
+                                    <div class="mt-auto">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar"></i> {{ doacao.data_criacao|date:"d/m/Y" }}
+                                            </small>
+                                            <small class="text-muted">
+                                                <i class="bi bi-eye"></i> {{ doacao.visualizacoes }}
+                                            </small>
+                                        </div>
+                                        
+                                        {% if doacao.receptor %}
+                                            <p class="small mb-3">
+                                                <i class="bi bi-person"></i> Reservado por: {{ doacao.receptor.username }}
+                                            </p>
+                                        {% endif %}
+                                        
+                                        <div class="d-flex gap-2">
+                                            <a href="{% url 'doacao_detalhe' doacao.pk %}" class="btn btn-sm btn-primary">
+                                                Ver Detalhes
+                                            </a>
+                                            {% if doacao.status == 'disponivel' %}
+                                                <a href="{% url 'doacao_editar' doacao.pk %}" class="btn btn-sm btn-warning">
+                                                    Editar
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Você ainda não fez nenhuma doação.
+                    <a href="{% url 'doacao_criar' %}">Criar primeira doação</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Doações Recebidas -->
+        <div class="tab-pane fade" id="recebidas" role="tabpanel">
+            {% if doacoes_recebidas %}
+                <div class="row g-4">
+                    {% for doacao in doacoes_recebidas %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card">
+                                {% if doacao.foto %}
+                                    <img src="{{ doacao.foto.url }}" class="card-img-top" alt="{{ doacao.titulo }}" style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <i class="bi bi-image" style="font-size: 48px;"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ doacao.titulo }}</h5>
+                                    <span class="badge bg-{{ doacao.status|yesno:'success,warning,secondary' }} mb-2">
+                                        {{ doacao.get_status_display }}
+                                    </span>
+                                    <p class="card-text text-muted small">
+                                        {{ doacao.descricao|truncatewords:10 }}
+                                    </p>
+                                    <p class="small mb-2">
+                                        <i class="bi bi-person"></i> Doador: {{ doacao.doador.username }}
+                                    </p>
+                                    <a href="{% url 'doacao_detalhe' doacao.pk %}" class="btn btn-sm btn-primary">
+                                        Ver Detalhes
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Você ainda não recebeu nenhuma doação.
+                    <a href="{% url 'home' %}">Buscar doações disponíveis</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
