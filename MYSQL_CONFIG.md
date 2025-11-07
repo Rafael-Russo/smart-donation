@@ -102,12 +102,24 @@ DB_PORT=3306
    # Cole as configurações acima
    ```
 
-5. **Testar conexão:**
+5. **Configurar charset UTF-8 (suporta emojis):**
+   ```bash
+   # Conectar ao MySQL
+   mysql -h seuusuario.mysql.pythonanywhere-services.com -u seuusuario -p
+   
+   # No prompt do MySQL, executar:
+   ALTER DATABASE `seuusuario$smart_donation` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   
+   # Sair do MySQL
+   exit
+   ```
+
+6. **Testar conexão:**
    ```bash
    python manage.py check --database default
    ```
 
-6. **Criar tabelas:**
+7. **Criar tabelas:**
    ```bash
    python manage.py migrate
    ```
@@ -259,6 +271,35 @@ pip install mysqlclient
 nano .env
 # Edite DB_PASSWORD=senha-correta-aqui
 ```
+
+### Erro: "Incorrect string value" com emojis
+
+**Erro completo:**
+```
+MySQLdb.OperationalError: (1366, "Incorrect string value: '\\xF0\\x9F\\x8E\\x84' for column 'conteudo'")
+```
+
+**Causa:** Banco de dados não está configurado com charset `utf8mb4` (necessário para emojis)
+
+**Solução:**
+```bash
+# 1. Conectar ao MySQL
+mysql -h seuusuario.mysql.pythonanywhere-services.com -u seuusuario -p
+
+# 2. No prompt do MySQL, alterar charset:
+ALTER DATABASE `seuusuario$smart_donation` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# 3. Verificar:
+SHOW CREATE DATABASE `seuusuario$smart_donation`;
+
+# 4. Sair
+exit
+
+# 5. Recriar as tabelas (se já existirem)
+python manage.py migrate --run-syncdb
+```
+
+**Nota:** O `settings.py` já está configurado com `'charset': 'utf8mb4'` nas OPTIONS do MySQL.
 
 ---
 

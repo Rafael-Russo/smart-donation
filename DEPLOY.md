@@ -128,7 +128,29 @@ Salve o arquivo:
 - `Ctrl + O` (Enter para confirmar)
 - `Ctrl + X` (para sair)
 
-### 8. Configurar Banco de Dados (MySQL)
+### 8. Configurar Charset do Banco (UTF-8 para emojis)
+
+**⚠️ IMPORTANTE: Execute antes de criar as tabelas!**
+
+```bash
+# Conectar ao MySQL
+mysql -h seuusuario.mysql.pythonanywhere-services.com -u seuusuario -p
+
+# No prompt do MySQL, executar:
+ALTER DATABASE `seuusuario$smart_donation` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# Verificar a configuração:
+SHOW CREATE DATABASE `seuusuario$smart_donation`;
+
+# Sair do MySQL
+exit
+```
+
+**Por que fazer isso?**
+- Suporta emojis e caracteres especiais (🎄, 🎁, ❤️, etc.)
+- Evita erro: "Incorrect string value: '\\xF0\\x9F\\x8E\\x84'"
+
+### 9. Configurar Banco de Dados (MySQL)
 ```bash
 # Testar conexão com MySQL
 python manage.py check --database default
@@ -152,12 +174,12 @@ pip list | grep mysqlclient
 pip install mysqlclient
 ```
 
-### 9. Coletar Arquivos Estáticos (PWA)
+### 10. Coletar Arquivos Estáticos (PWA)
 ```bash
 python manage.py collectstatic --noinput
 ```
 
-### 10. Configurar Web App
+### 11. Configurar Web App
 
 #### Na aba "Web":
 1. Clique em "Add a new web app"
@@ -203,9 +225,9 @@ Na seção "Static files", adicione:
 
 **Lembre-se de substituir `seuusuario`!**
 
-### 11. Verificar Configurações
+### 12. Verificar Configurações
 
-O arquivo `.env` já foi configurado no passo 6, mas verifique se o `config/settings.py` está carregando corretamente:
+O arquivo `.env` já foi configurado no passo 7, mas verifique se o `config/settings.py` está carregando corretamente:
 
 ```bash
 nano config/settings.py
@@ -232,11 +254,11 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
 ✅ Se já estiver configurado assim, está tudo certo!
 
-### 12. Recarregar a Aplicação
+### 13. Recarregar a Aplicação
 - Na aba "Web", clique no botão verde "Reload"
 - Aguarde alguns segundos
 
-### 13. Acessar seu Site
+### 14. Acessar seu Site
 Acesse: `https://seuusuario.pythonanywhere.com`
 
 ## 🎉 Pronto!
@@ -342,6 +364,32 @@ mysql -h seuusuario.mysql.pythonanywhere-services.com -u seuusuario -p
 # Se funcionar, o problema está no .env
 # Verifique DB_HOST, DB_USER, DB_PASSWORD
 ```
+
+### Erro: "Incorrect string value" com emojis
+**Erro completo:**
+```
+MySQLdb.OperationalError: (1366, "Incorrect string value: '\\xF0\\x9F\\x8E\\x84' for column 'conteudo'")
+```
+
+**Causa:** Banco não configurado com charset utf8mb4
+
+**Solução:**
+```bash
+# 1. Conectar ao MySQL
+mysql -h seuusuario.mysql.pythonanywhere-services.com -u seuusuario -p
+
+# 2. Alterar charset do banco
+ALTER DATABASE `seuusuario$smart_donation` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# 3. Se as tabelas já existem, pode ser necessário recriá-las:
+exit
+python manage.py migrate --run-syncdb
+
+# 4. Ou popular novamente
+python manage.py popular_db --completo
+```
+
+**Nota:** O settings.py já está configurado com `'charset': 'utf8mb4'`, mas o banco precisa ser configurado também.
 
 ### Banco de dados não encontrado (SQLite antigo)
 Se estava usando SQLite e migrou para MySQL:
