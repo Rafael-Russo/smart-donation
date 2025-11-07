@@ -156,6 +156,7 @@ Configure o arquivo `.env`:
 ```bash
 DEBUG=False
 ALLOWED_HOSTS=seudominio.com,www.seudominio.com
+CSRF_TRUSTED_ORIGINS=https://seudominio.com,https://www.seudominio.com
 SECRET_KEY=sua_chave_secreta_aqui
 ```
 
@@ -201,6 +202,7 @@ Crie um arquivo `.env` na raiz do projeto:
 SECRET_KEY=sua_chave_secreta_aqui
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
+CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
 ```
 
 Ou gere uma SECRET_KEY automaticamente:
